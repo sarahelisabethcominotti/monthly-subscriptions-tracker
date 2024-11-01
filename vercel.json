@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/api/deleteSubscription/(.*)",
+        "methods": ["DELETE"],
+        "dest": "/api/deleteSubscription.js?id=$1" 
+      },
+      {
+        "src": "/api/(.*)",
+        "dest": "/api/$1"
+      }
+    ]
+  }
+  
