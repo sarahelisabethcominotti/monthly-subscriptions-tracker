@@ -10,7 +10,7 @@ function Navigation() {
 
   const { listOfSubscriptions, setListOfSubscriptions } =
     useContext(SubscriptionContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [start, setStart] = useState("");
@@ -18,6 +18,8 @@ function Navigation() {
   const [recurrency, setRecurrency] = useState("");
 
   const createSubscription = () => {
+    setIsLoading(true);
+
     Axios.post(`${apiUrl}/createSubscription`, {
       name,
       price,
@@ -30,6 +32,7 @@ function Navigation() {
         ...listOfSubscriptions,
         { name, price, start, end, recurrency },
       ]);
+      setIsLoading(false);
       alert("SUBSCRIPTION ADDED SUCCESSFULLY");
     });
   };
@@ -51,9 +54,13 @@ function Navigation() {
     <>
       <header className="App-header">
         <button className="header-icon" onClick={openAddSubscription}>
-          <span className="material-symbols-rounded" id="add">
-            add
-          </span>
+          {isLoading ? (
+            <div class="loader"></div>
+          ) : (
+            <span className="material-symbols-rounded" id="add">
+              add
+            </span>
+          )}
         </button>
         <Link style={{ textDecoration: "none", color: "white" }} to="/">
           <p>My Monthly Subscriptions</p>

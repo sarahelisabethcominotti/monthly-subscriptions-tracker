@@ -2,31 +2,35 @@ import React, { useState, useEffect, useContext } from "react";
 import Axios from "axios";
 import { SubscriptionContext } from "../SubscriptionContext";
 
-export const apiUrl = process.env.REACT_APP_API_URL; 
+export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const Calendar = () => {
-  const {listOfSubscriptions, setListOfSubscriptions} = useContext(SubscriptionContext)
+  const { listOfSubscriptions, setListOfSubscriptions } =
+    useContext(SubscriptionContext);
   const [date, setDate] = useState(new Date());
   const [days, setDays] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const deleteSubscription = (id) => {
+    setIsLoading(true);
     const url = `${apiUrl}/deleteSubscription/${id}`;
     console.log(`Attempting to delete subscription at: ${url}`);
-    
+
     Axios.delete(url)
       .then((response) => {
         setListOfSubscriptions(
           listOfSubscriptions.filter((subscription) => subscription._id !== id)
         );
+        setIsLoading(false);
         alert("SUBSCRIPTION DELETED SUCCESSFULLY");
       })
       .catch((error) => {
-  
-        console.error("There was an error deleting the subscription!", 
-          error.response ? error.response.data : error.message);
+        console.error(
+          "There was an error deleting the subscription!",
+          error.response ? error.response.data : error.message
+        );
       });
   };
-  
 
   const months = [
     "January",
@@ -165,12 +169,18 @@ export const Calendar = () => {
                       {/* add logo with api */}
                       <p>{sub.name}</p>
                       <p>£{sub.price}</p>
-                      <button className="delete-button" onClick={() => deleteSubscription(sub._id)}>
-                        <span
-                          className="material-symbols-rounded"
-                        >
-                          delete
-                        </span>
+
+                      <button
+                        className="delete-button"
+                        onClick={() => deleteSubscription(sub._id)}
+                      >
+                        {isLoading ? (
+                          <div class="loader"></div>
+                        ) : (
+                          <span className="material-symbols-rounded">
+                            delete
+                          </span>
+                        )}
                       </button>
                     </div>
                   ))}
@@ -185,4 +195,4 @@ export const Calendar = () => {
   );
 };
 
-export default Calendar
+export default Calendar;
