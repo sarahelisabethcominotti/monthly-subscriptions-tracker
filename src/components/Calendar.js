@@ -99,7 +99,7 @@ export const Calendar = () => {
   // buttons
   const handlePrevNext = (direction) => {
     const newDate = new Date(date);
-    newDate.setMonth(date.getMonth() + direction); // -1 for prev, +1 for next
+    newDate.setMonth(date.getMonth() + direction);
     setDate(newDate);
   };
 
@@ -164,26 +164,30 @@ export const Calendar = () => {
                     const subscriptionDay = new Date(sub.start).getDate();
                     return subscriptionDay === day.day;
                   })
-                  .map((sub, index) => (
-                    <div key={index} className="subscription-info">
-                      {/* add logo with api */}
-                      <p>{sub.name}</p>
-                      <p>£{sub.price}</p>
-
-                      <button
-                        className="delete-button"
-                        onClick={() => deleteSubscription(sub._id)}
-                      >
-                        {isLoading ? (
-                          <div class="loader"></div>
-                        ) : (
-                          <span className="material-symbols-rounded">
-                            delete
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  ))}
+                  .map((sub, index) => {
+                    const subscriptionDate = new Date(sub.start);
+                    const isPastDate = subscriptionDate < new Date();
+                    return (
+                      <div key={index} className="subscription-info">
+                        {/* add logo with api */}
+                        <p>{sub.name}</p>
+                        <p>£{sub.price}</p>
+                        {/* check if the date is bigger than current day then you can delete, if not you can't delete */}
+                        {isPastDate && (<button
+                          className="delete-button"
+                          onClick={() => deleteSubscription(sub._id)}
+                        >
+                          {isLoading ? (
+                            <div class="loader"></div>
+                          ) : (
+                            <span className="material-symbols-rounded">
+                              delete
+                            </span>
+                          )}
+                        </button>)}
+                      </div>
+                    );
+                  })}
                 {/* making appear a dot when there is a subscription happening on that day */}
                 <p>{dayDates.includes(day.day) ? "•" : ""}</p>
               </li>
