@@ -167,13 +167,20 @@ export const Calendar = () => {
                   .map((sub, index) => {
                     const subscriptionDate = new Date(sub.start);
                     const isPastDate = subscriptionDate < new Date();
+                    console.log(subscriptionDate, new Date(), isPastDate)
+                    // console.log(day.day, new Date().getDate(), day.day > new Date().getDate())
+                    // console.log(day.month, new Date().getMonth(), day.month > new Date().getMonth())
+                    // console.log(day.year, new Date().getFullYear(), day.year > new Date().getFullYear())
+
                     return (
                       <div key={index} className="subscription-info">
+                        
                         {/* add logo with api */}
                         <p>{sub.name}</p>
                         <p>£{sub.price}</p>
                         {/* check if the date is bigger than current day then you can delete, if not you can't delete */}
-                        {isPastDate && (<button
+                        {/* {day.day > new Date().getDate() && ( */}
+                          <button
                           className="delete-button"
                           onClick={() => deleteSubscription(sub._id)}
                         >
@@ -184,7 +191,8 @@ export const Calendar = () => {
                               delete
                             </span>
                           )}
-                        </button>)}
+                        </button>
+                        {/* )} */}
                       </div>
                     );
                   })}
