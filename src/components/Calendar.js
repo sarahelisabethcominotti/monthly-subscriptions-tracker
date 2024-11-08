@@ -5,7 +5,8 @@ import { SubscriptionContext } from "../SubscriptionContext";
 export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const Calendar = () => {
-  const { listOfSubscriptions, setListOfSubscriptions } = useContext(SubscriptionContext);
+  const { listOfSubscriptions, setListOfSubscriptions } =
+    useContext(SubscriptionContext);
   const [date, setDate] = useState(new Date());
   const [days, setDays] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +33,18 @@ export const Calendar = () => {
   };
 
   const months = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const generateCalendarDays = () => {
@@ -49,7 +60,10 @@ export const Calendar = () => {
 
     // previous month days
     for (let i = firstDayOfMonth; i > 0; i--) {
-      calendarDays.push({ day: lastDateOfPrevMonth - i + 1, isCurrentMonth: false });
+      calendarDays.push({
+        day: lastDateOfPrevMonth - i + 1,
+        isCurrentMonth: false,
+      });
     }
 
     // current month days
@@ -75,6 +89,7 @@ export const Calendar = () => {
 
   useEffect(() => {
     generateCalendarDays();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
   const handlePrevNext = (direction) => {
@@ -82,6 +97,12 @@ export const Calendar = () => {
     newDate.setMonth(date.getMonth() + direction);
     setDate(newDate);
   };
+
+  const dayDates = listOfSubscriptions.map((subscription) => {
+    const dateForDay = new Date(subscription.start);
+    const dayDate = dateForDay.getDate();
+    return dayDate;
+  });
 
   const isSubscriptionDay = (day, month, year, subscription) => {
     const startDate = new Date(subscription.start);
@@ -95,9 +116,7 @@ export const Calendar = () => {
 
     switch (subscription.recurrency) {
       case "weekly":
-        return (
-          (checkDate - startDate) % (7 * 24 * 60 * 60 * 1000) === 0
-        );
+        return (checkDate - startDate) % (7 * 24 * 60 * 60 * 1000) === 0;
       case "monthly":
         return startDate.getDate() === day;
       case "yearly":
@@ -148,17 +167,45 @@ export const Calendar = () => {
                 key={index}
                 className={`${day.isCurrentMonth ? "" : "inactive"} ${
                   day.isToday ? "active" : ""
+                } ${
+                  listOfSubscriptions.some((sub) =>
+                    isSubscriptionDay(
+                      day.day,
+                      date.getMonth(),
+                      date.getFullYear(),
+                      sub
+                    )
+                  )
+                    ? "show-summary"
+                    : ""
                 }`}
               >
                 <p>{day.day}</p>
+
+                {listOfSubscriptions.some((sub) =>
+                  isSubscriptionDay(
+                    day.day,
+                    date.getMonth(),
+                    date.getFullYear(),
+                    sub
+                  )
+                ) && <p>•</p>}
+
                 {listOfSubscriptions
                   .filter((sub) =>
-                    isSubscriptionDay(day.day, date.getMonth(), date.getFullYear(), sub)
+                    isSubscriptionDay(
+                      day.day,
+                      date.getMonth(),
+                      date.getFullYear(),
+                      sub
+                    )
                   )
                   .map((sub, idx) => (
-                    <p key={idx} className="subscription-name">
-                      • {sub.name}
-                    </p>
+                    <div className="subscription-info">
+                      <p key={idx} className="subscription-name">
+                        {sub.name}£{sub.price}
+                      </p>
+                    </div>
                   ))}
               </li>
             ))}
