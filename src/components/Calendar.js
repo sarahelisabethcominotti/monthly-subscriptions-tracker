@@ -5,8 +5,7 @@ import { SubscriptionContext } from "../SubscriptionContext";
 export const apiUrl = process.env.REACT_APP_API_URL;
 
 export const Calendar = () => {
-  const { listOfSubscriptions, setListOfSubscriptions } =
-    useContext(SubscriptionContext);
+  const { listOfSubscriptions, setListOfSubscriptions } = useContext(SubscriptionContext);
   const [date, setDate] = useState(new Date());
   const [days, setDays] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,21 +32,10 @@ export const Calendar = () => {
   };
 
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
   ];
 
-  // current month
   const generateCalendarDays = () => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -59,15 +47,12 @@ export const Calendar = () => {
 
     let calendarDays = [];
 
-    // previous month
+    // previous month days
     for (let i = firstDayOfMonth; i > 0; i--) {
-      calendarDays.push({
-        day: lastDateOfPrevMonth - i + 1,
-        isCurrentMonth: false,
-      });
+      calendarDays.push({ day: lastDateOfPrevMonth - i + 1, isCurrentMonth: false });
     }
 
-    // current month
+    // current month days
     for (let i = 1; i <= lastDateOfMonth; i++) {
       calendarDays.push({
         day: i,
@@ -79,13 +64,10 @@ export const Calendar = () => {
       });
     }
 
-    // next month
-    const remainingDays = 42 - calendarDays.length; // Total 6 weeks (6*7 = 42 days)
+    // next month days
+    const remainingDays = 42 - calendarDays.length;
     for (let i = 1; i <= remainingDays; i++) {
-      calendarDays.push({
-        day: i,
-        isCurrentMonth: false,
-      });
+      calendarDays.push({ day: i, isCurrentMonth: false });
     }
 
     setDays(calendarDays);
@@ -93,23 +75,37 @@ export const Calendar = () => {
 
   useEffect(() => {
     generateCalendarDays();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date]);
 
-  // buttons
   const handlePrevNext = (direction) => {
     const newDate = new Date(date);
     newDate.setMonth(date.getMonth() + direction);
     setDate(newDate);
   };
 
-  const dayDates = listOfSubscriptions.map((subscription) => {
-    const dateForDay = new Date(subscription.start);
-    const dayDate = dateForDay.getDate();
-    return dayDate;
-  });
+  const isSubscriptionDay = (day, month, year, subscription) => {
+    const startDate = new Date(subscription.start);
+    const endDate = subscription.end ? new Date(subscription.end) : null;
 
-  // console.log(dayDates);
+    const checkDate = new Date(year, month, day);
+
+    if (checkDate < startDate || (endDate && checkDate > endDate)) {
+      return false; //should not show
+    }
+
+    switch (subscription.recurrency) {
+      case "weekly":
+        return (
+          (checkDate - startDate) % (7 * 24 * 60 * 60 * 1000) === 0
+        );
+      case "monthly":
+        return startDate.getDate() === day;
+      case "yearly":
+        return startDate.getDate() === day && startDate.getMonth() === month;
+      default:
+        return checkDate.getTime() === startDate.getTime(); // one-time event
+    }
+  };
 
   return (
     <>
@@ -152,52 +148,18 @@ export const Calendar = () => {
                 key={index}
                 className={`${day.isCurrentMonth ? "" : "inactive"} ${
                   day.isToday ? "active" : ""
-                } column ${
-                  day.isCurrentMonth && dayDates.includes(day.day)
-                    ? "show-summary"
-                    : ""
                 }`}
               >
                 <p>{day.day}</p>
                 {listOfSubscriptions
-                  .filter((sub) => {
-                    const subscriptionDay = new Date(sub.start).getDate();
-                    return subscriptionDay === day.day;
-                  })
-                  .map((sub, index) => {
-                    const subscriptionDate = new Date(sub.start);
-                    const isPastDate = subscriptionDate < new Date();
-                    console.log(subscriptionDate, new Date(), isPastDate)
-                    // console.log(day.day, new Date().getDate(), day.day > new Date().getDate())
-                    // console.log(day.month, new Date().getMonth(), day.month > new Date().getMonth())
-                    // console.log(day.year, new Date().getFullYear(), day.year > new Date().getFullYear())
-
-                    return (
-                      <div key={index} className="subscription-info">
-                        
-                        {/* add logo with api */}
-                        <p>{sub.name}</p>
-                        <p>£{sub.price}</p>
-                        {/* check if the date is bigger than current day then you can delete, if not you can't delete */}
-                        {/* {day.day > new Date().getDate() && ( */}
-                          <button
-                          className="delete-button"
-                          onClick={() => deleteSubscription(sub._id)}
-                        >
-                          {isLoading ? (
-                            <div class="loader"></div>
-                          ) : (
-                            <span className="material-symbols-rounded">
-                              delete
-                            </span>
-                          )}
-                        </button>
-                        {/* )} */}
-                      </div>
-                    );
-                  })}
-                {/* making appear a dot when there is a subscription happening on that day */}
-                <p>{dayDates.includes(day.day) ? "•" : ""}</p>
+                  .filter((sub) =>
+                    isSubscriptionDay(day.day, date.getMonth(), date.getFullYear(), sub)
+                  )
+                  .map((sub, idx) => (
+                    <p key={idx} className="subscription-name">
+                      • {sub.name}
+                    </p>
+                  ))}
               </li>
             ))}
           </ul>
