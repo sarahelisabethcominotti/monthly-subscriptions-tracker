@@ -147,7 +147,7 @@ function Navigation() {
               />
             </div>
             <datalist id="suggestions">
-              {/* <option value="weekly">Every week</option> */}
+              <option value="weekly">Every week</option>
               <option value="monthly">Every month</option>
               {/* <option value="yearly">Every year</option> */}
             </datalist>
