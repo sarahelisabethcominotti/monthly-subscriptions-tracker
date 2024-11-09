@@ -200,11 +200,22 @@ export const Calendar = () => {
                       sub
                     )
                   )
-                  .map((sub, idx) => (
-                    <div className="subscription-info">
-                      <p key={idx} className="subscription-name">
-                        {sub.name}£{sub.price}
-                      </p>
+                  .map((sub, index) => (
+                    <div key={index} className="subscription-info">
+                      <p>{sub.name}</p>
+                      <p>£{sub.price}</p>
+                      <button
+                            className="delete-button"
+                            onClick={() => deleteSubscription(sub._id)}
+                          >
+                            {isLoading ? (
+                              <div className="loader"></div>
+                            ) : (
+                              <span className="material-symbols-rounded">
+                                delete
+                              </span>
+                            )}
+                          </button>
                     </div>
                   ))}
               </li>
